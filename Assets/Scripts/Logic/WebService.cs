@@ -7,14 +7,11 @@ namespace Assets.Scripts.Logic
 {
     public class WebService
     {
-        private const string ServerUrl = "https://new.tonbingo.com/";
-        private const string UserId = "15027401";
-
-        public async UniTask<double> DownloadBalance()
+        public static async UniTask<double> DownloadBalance(string userId)
         {
             double result = 0;
 
-            using var request = UnityWebRequest.Get($"{ServerUrl}get_user_by_uuid/{UserId}/");
+            using var request = UnityWebRequest.Get($"{Constants.ServerUrl}get_user_by_uuid/{userId}/");
             try
             {
                 await request.SendWebRequest();
@@ -37,11 +34,11 @@ namespace Assets.Scripts.Logic
             return result;
         }
 
-        public async UniTask<Sprite> DownloadAvatar()
+        public static async UniTask<Sprite> DownloadAvatar(string userId)
         {
             Sprite result = null;
 
-            using var request = UnityWebRequest.Get($"{ServerUrl}avatar/{UserId}/");
+            using var request = UnityWebRequest.Get($"{Constants.ServerUrl}avatar/{userId}/");
             try
             {
                 await request.SendWebRequest();
