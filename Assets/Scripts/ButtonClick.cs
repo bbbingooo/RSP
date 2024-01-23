@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Assets.Scripts.View
+namespace Assets.Scripts
 {
     public class ButtonClick : MonoBehaviour, IPointerClickHandler
     {
