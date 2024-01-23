@@ -7,14 +7,14 @@ namespace Assets.Scripts.Logic
 {
     public class WebService
     {
-        private const string ServerUrl = "https://new.tonbingo.com/avatar/";
+        private const string ServerUrl = "https://new.tonbingo.com/";
         private const string UserId = "15027401";
 
-        private UserAvatar _userAvatar;
-
-        public async UniTask<Sprite> DownloadAvatar()
+        public async UniTask<double> DownloadBalance()
         {
-            using var request = UnityWebRequest.Get($"{ServerUrl}{UserId}/");
+            double result = 0;
+
+            using var request = UnityWebRequest.Get($"{ServerUrl}get_user_by_uuid/{UserId}/");
             try
             {
                 await request.SendWebRequest();
@@ -24,13 +24,33 @@ namespace Assets.Scripts.Logic
                 // ignored
             }
 
-            return await ProcessResponse(request);
+            if (request.result != UnityWebRequest.Result.Success)
+            {
+                Debug.Log("Error!");
+            }
+            else
+            {
+                var data = JsonUtility.FromJson<UserBalance>(request.downloadHandler.text);
+                result = data.balance_ton;
+            }
+
+            return result;
         }
 
-        private static async UniTask<Sprite> ProcessResponse(UnityWebRequest request)
+        public async UniTask<Sprite> DownloadAvatar()
         {
             Sprite result = null;
 
+            using var request = UnityWebRequest.Get($"{ServerUrl}avatar/{UserId}/");
+            try
+            {
+                await request.SendWebRequest();
+            }
+            catch
+            {
+                // ignored
+            }
+            
             if (request.result != UnityWebRequest.Result.Success)
             {
                 Debug.Log("Error!");
@@ -38,7 +58,7 @@ namespace Assets.Scripts.Logic
             else
             {
                 var data = JsonUtility.FromJson<UserAvatar>(request.downloadHandler.text);
-                result = await DownloadImage(data.img_link);
+                if (data.img_link != "") result = await DownloadImage(data.img_link);
             }
 
             return result;

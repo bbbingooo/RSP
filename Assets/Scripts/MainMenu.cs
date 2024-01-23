@@ -1,14 +1,20 @@
 ﻿using Assets.Scripts.Logic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Assets.Scripts
 {
     public class MainMenu : MonoBehaviour
     {
+        private const string SingleLabel = "Single";
+        private const string MultiLabel = "Multi";
+
         private WebService _webService;
 
         [SerializeField] private Image _avatarImage;
+        [SerializeField] private TextMeshProUGUI _balanceText;
 
         [SerializeField] private ButtonClick _singlePlayerButton;
         [SerializeField] private ButtonClick _multiPlayerButton;
@@ -18,8 +24,17 @@ namespace Assets.Scripts
         {
             _webService = new WebService();
             Subscribe();
-            _avatarImage.sprite = await _webService.DownloadAvatar();
+            var sprite = await _webService.DownloadAvatar();
+            _avatarImage.sprite = sprite;
+            var balance  = await _webService.DownloadBalance();
+            _balanceText.text = $"{balance}";
         }
+
+        private void PlaySingle() => 
+            SceneManager.LoadScene(SingleLabel);
+
+        private void PlayMulti() => 
+            SceneManager.LoadScene(MultiLabel);
 
         private void Quit() 
         {
@@ -38,15 +53,15 @@ namespace Assets.Scripts
 
         private void Subscribe()
         {
-            _singlePlayerButton.Clicked += Quit;
-            _multiPlayerButton.Clicked += Quit;
+            _singlePlayerButton.Clicked += PlaySingle;
+            _multiPlayerButton.Clicked += PlayMulti;
             _quitButton.Clicked += Quit;
         }
 
         private void Unsubscribe()
         {
-            _singlePlayerButton.Clicked -= Quit;
-            _multiPlayerButton.Clicked -= Quit;
+            _singlePlayerButton.Clicked -= PlaySingle;
+            _multiPlayerButton.Clicked -= PlayMulti;
             _quitButton.Clicked -= Quit;
         }
     }
