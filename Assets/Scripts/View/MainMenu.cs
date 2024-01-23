@@ -1,17 +1,14 @@
-﻿using Assets.Scripts.Logic;
+﻿using Assets.Scripts.Data;
+using Assets.Scripts.Logic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-namespace Assets.Scripts
+namespace Assets.Scripts.View
 {
     public class MainMenu : MonoBehaviour
     {
-        private const string SingleLabel = "Single";
-        private const string MultiLabel = "Multi";
-
-        private WebService _webService;
 
         [SerializeField] private Image _avatarImage;
         [SerializeField] private TextMeshProUGUI _balanceText;
@@ -22,19 +19,24 @@ namespace Assets.Scripts
 
         private async void Start()
         {
-            _webService = new WebService();
             Subscribe();
-            var sprite = await _webService.DownloadAvatar();
+            var sprite = await WebService.DownloadAvatar(Constants.UserId);
             _avatarImage.sprite = sprite;
-            var balance  = await _webService.DownloadBalance();
+            var balance  = await WebService.DownloadBalance(Constants.UserId);
             _balanceText.text = $"{balance}";
         }
 
-        private void PlaySingle() => 
-            SceneManager.LoadScene(SingleLabel);
+        private void PlaySingle()
+        {
+            Unsubscribe();
+            SceneManager.LoadScene(Constants.SingleLabel);
+        }
 
-        private void PlayMulti() => 
-            SceneManager.LoadScene(MultiLabel);
+        private void PlayMulti()
+        {
+            Unsubscribe();
+            SceneManager.LoadScene(Constants.MultiLabel);
+        }
 
         private void Quit() 
         {
