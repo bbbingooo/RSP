@@ -3,120 +3,287 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | RSP</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, user-scalable=no"/>
+
+
+    <!-- Спасибо за установку Advanced Templates -->
+    <!-- Стой, не спускайся вниз. Залезь мне в сердце, а не в нижние строки код. (feat. Монеточка) -->
+
+    <style>
+      /* Убираем выделение по нажатию клавиш */
+      canvas:focus {
+        outline: none;
+      }
+      html, body {
+        /* Убираем отступы */
+        padding: 0;
+        margin: 0;
+
+        /* Отключаем скролл и лонгтап на IOS */
+        overflow: hidden;
+        -webkit-touch-callout:none;
+        -webkit-user-select:none;
+        -khtml-user-select:none;
+        -moz-user-select:none;
+        -ms-user-select:none;
+        user-select:none;
+        -webkit-tap-highlight-color:rgba(0,0,0,0);
+
+        /* Ставим высоту на 100% */
+        height: 100%;
+
+        /* Центрируем, если привязана картинка или творим магию, чтобы можно было использовать градиент */
+  	background-position-x: 50%;
+  	background-repeat: no-repeat;
+ 	background-size: cover;
+        background-attachment: fixed;
+
+        /* Скрываем скролл */
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+        scrollbar-height: none;
+      }
+      /* Канвас и загрузочный экран */
+      #canvas {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+      }
+      .loading_bg {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        /* Центрируем, если привязана картинка или творим магию, чтобы можно было использовать градиент */
+  	background-position-x: 50%;
+  	background-repeat: no-repeat;
+ 	background-size: cover;
+        background-attachment: fixed;
+      }
+      .loading {
+        position: absolute;
+        /*background-color:red;*/
+      }
+      .loading_logo {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        z-index: 6;
+        pointer-events: none;
+        background-position: center;
+  	background-repeat: no-repeat;
+ 	background-size: contain;
+        background-attachment: scroll;
+      }
+      p {
+        font-family: Arial, Helvetica, sans-serif;
+        word-wrap: break-word;
+      }
+    </style>
+
+
   </head>
   <body>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=393 height=852 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
+    <canvas id="canvas" class="canvas" tabindex="-1"></canvas>
+    <div class="loading_bg">
+      <div class="loading">
+        <div id="flags" style="position: absolute; top: 20%; left: -1.3%; width: 100%; height: 100%;">
+          <div id="flag1" style="position: absolute; top: 0%; left: 5%; width: 13%; height: 5%; pointer-events: none; background-position: center; background-repeat: no-repeat; background-size: contain; background-attachment: scroll; background-image: url('flag1.jpg');"></div>
+
+          <div id="flag2" style="position: absolute; top: 0%; left: 21%; width: 13%; height: 5%; pointer-events: none; background-position: center; background-repeat: no-repeat; background-size: contain; background-attachment: scroll; background-image: url('flag2.jpg');"></div>
+
+          <div id="flag3" style="position: absolute; top: 0%; left: 37%; width: 13%; height: 5%; pointer-events: none; background-position: center; background-repeat: no-repeat; background-size: contain; background-attachment: scroll; background-image: url('flag3.jpg');"></div>
+
+          <div id="flag4" style="position: absolute; top: 0%; left: 53%; width: 13%; height: 5%; pointer-events: none; background-position: center; background-repeat: no-repeat; background-size: contain; background-attachment: scroll; background-image: url('flag4.jpg');"></div>
+
+          <div id="flag5" style="position: absolute; top: 0%; left: 69%; width: 13%; height: 5%; pointer-events: none; background-position: center; background-repeat: no-repeat; background-size: contain; background-attachment: scroll; background-image: url('flag5.jpg');"></div>
+
+          <div id="flag6" style="position: absolute; top: 0%; left: 85%; width: 13%; height: 5%; pointer-events: none; background-position: center; background-repeat: no-repeat; background-size: contain; background-attachment: scroll; background-image: url('flag6.jpg');"></div>
         </div>
-      </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-webgl-logo"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">RSP</div>
+        <p id="bottom_text" style="position: absolute; top: 85%; bottom: 0; width: 100%; max-width: 100%; text-align: center; color: white;">Много много текста<br>Аж катица слеза<br><br>Запатентовано, не красть! (c) 2024</p>
+        <div id="loading_gif" style="position: absolute; transform: translate(-50%, -50%); top: 45%; width: 20%; height: 20%; pointer-events: none; background-position: center; background-repeat: no-repeat; background-size: contain; background-attachment: scroll; background-image: url('loading.gif');"></div>
+        <div class="loading_logo" id="company_logo"></div>
+        <div class="loading_logo" id="game_logo"></div>
       </div>
     </div>
     <script>
+      var canvas = document.querySelector("#canvas");
+      var loading_bg = document.querySelector(".loading_bg");
+      var loading = document.querySelector(".loading");
+      var company_logo = document.getElementById("company_logo");
+      var game_logo = document.getElementById("game_logo");
+      var flag_container = document.getElementById("flags");
+      var flags = [document.getElementById("flag1"), document.getElementById("flag2"), document.getElementById("flag3"), document.getElementById("flag4"), document.getElementById("flag5"), document.getElementById("flag6")];
+      var bottom_text = document.getElementById("bottom_text");
+      var loading_gif = document.getElementById("loading_gif");
 
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var warningBanner = document.querySelector("#unity-warning");
+      // Для того, чтобы текст правильно масштабировался
+      var scaleFactor;
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-      function unityShowBanner(msg, type) {
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
+      // Подключаем ATinstance для связи Unity с браузером
+      var ATinstance = null;
+
+      function ATinstanceEnable(callback) {
+        const checkNull = () => {
+          if(ATinstance !== null) {
+            callback();
+          } else {
+            setTimeout(checkNull, 1000);
+          }
+        };
+        checkNull();
       }
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/RSP.loader.js";
-      var config = {
-        dataUrl: buildUrl + "/RSP.data",
-        frameworkUrl: buildUrl + "/RSP.framework.js",
-        codeUrl: buildUrl + "/RSP.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "RSP",
-        productVersion: "0.1",
-        showBanner: unityShowBanner,
-      };
+      // Выключаем появление меню при правом клике мыши
+      document.addEventListener('contextmenu', event => event.preventDefault());
 
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
+      // Проверяем устройство
+      var isDeviceTouch;
+      var isDeviceNavigator;
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        container.className = "unity-mobile";
-        canvas.className = "unity-mobile";
-
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
-
-
+      // Определение с помощью тач
+      if('ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        isDeviceTouch = true;
       } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-
-        canvas.style.width = "393px";
-        canvas.style.height = "852px";
+        isDeviceTouch = false;
       }
 
-      loadingBar.style.display = "block";
+      // Определение с помощью navigator
+      if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        isDeviceNavigator = true; 
+      } else {
+        isDeviceNavigator = false;
+      }
+      
+      // Возвращаем фокус, если кликнули по экрану
+      window.addEventListener('pointerdown', () => {
+        window.focus();
+        canvas.focus();
+      });
+      window.addEventListener('touchstart', () => {
+        window.focus();
+        canvas.focus();
+      });
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                loadingBar.style.display = "none";
-                fullscreenButton.onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-              }).catch((message) => {
-                alert(message);
-              });
-            };
 
-      document.body.appendChild(script);
+      company_logo.style.backgroundImage = "url('company_logo.png')";
+      game_logo.style.backgroundImage = "url('game_logo.png')";
 
+      // Настраиваем фон полос по бокам
+      document.body.style.backgroundImage = "linear-gradient(#4649C1, #2C0484)";
+
+      // Настраиваем фон загрузочного экрана
+      loading_bg.style.backgroundImage = "linear-gradient(#4649C1, #2C0484)" ;
+
+      function setLoading(logoPositionTop, logoPositionLeft, logoWidth, logoHeight) {
+        // Указываем размер логотипа
+        company_logo.style.top = logoPositionTop;
+        company_logo.style.left = logoPositionLeft;
+
+        company_logo.style.width = logoWidth; 
+        company_logo.style.height = logoHeight;
+      }
+
+      // Фиксация разрешения
+      function lock(object, aspectRatio) {
+        if(window.innerWidth / window.innerHeight > aspectRatio) {
+          object.style.width = window.innerHeight * aspectRatio + "px";
+          object.style.height = "100%";
+          scaleFactor = window.innerHeight * aspectRatio / 21;
+        } else {
+          object.style.width = "100%";
+          object.style.height = window.innerWidth / aspectRatio + "px";
+          scaleFactor = window.innerWidth / aspectRatio / 34;
+        }
+
+        var text = document.getElementsByTagName("p");
+        for(let i = 0; i < text.length; i++) {
+          text[i].style.fontSize = scaleFactor * 0.7 + 'px';
+        }
+
+        // Центрируем
+        object.style.margin = "auto";
+        object.style.top = "0";
+        object.style.left = "0";
+        object.style.bottom = "0";
+        object.style.right = "0";
+      }
+
+      // Настраиваем расположение, размер и оформление полосы с лого
+      var loading_bar_style;
+      var loadingStyleText = '0';
+
+      var loadingZeroStrings = ["0"];
+
+      if(loadingZeroStrings.some(i => loadingStyleText.includes(i))) {
+        loading_bar_style = 0;
+      } else {
+        loading_bar_style = 0;
+      }
+
+
+      // Вызываем апдейт при входе на страницу и изменений размеров окна браузера
+      function Update() {
+
+          lock(loading, 9/16);
+          if(loading_bar_style == 0) {
+            // Минимализм со свечением
+            setLoading("10%", "50%", "30%", "30%");
+            flag_container.style.top = "20%";
+            for(let i = 0; i < flags.length; i++) {
+              flags[0].style.left = "5%";
+              flags[1].style.left = "21%";
+              flags[2].style.left = "37%";
+              flags[3].style.left = "53%";
+              flags[4].style.left = "69%";
+              flags[5].style.left = "85%";
+            }
+            loading_gif.style.top = "55%";
+            loading_gif.style.width = "20%";
+            loading_gif.style.height = "20%";
+            loading_gif.style.left = "50%";
+
+            game_logo.style.top = "37%";
+            game_logo.style.left = "50%";
+            game_logo.style.width = "30%"; 
+            game_logo.style.height = "30%";
+          }
+      }
+
+      Update();
+      window.addEventListener("resize", (event) => {
+        Update();
+      });
+
+      // Подключаем myGameInstance для связи Unity с браузером
+      var myGameInstance = null;
+
+      // Загрузка файлов
+      var unityLoader = document.createElement("script");
+      unityLoader.src = "Build/RSP.loader.js";
+      unityLoader.onload = () => {
+        createUnityInstance(canvas, {
+          dataUrl: "Build/RSP.data",
+          frameworkUrl: "Build/RSP.framework.js",
+          codeUrl: "Build/RSP.wasm",
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: "DefaultCompany",
+          productName: "RSP",
+          productVersion: "0.1",
+        }, (progress) => {
+          Update();
+        }).then((unityInstance) => {
+          myGameInstance = unityInstance;
+          ATinstance = unityInstance;
+          loading_bg.style.display = "none";
+          Update();
+
+        }).catch((message) => {
+          console.error(message);
+          console.error("Не удалось загрузить файлы игры, пробуем заново");
+          unityLoader.onload();
+        });
+      };
+      document.body.appendChild(unityLoader);
     </script>
   </body>
 </html>
