@@ -272,6 +272,7 @@
         loading_bar_style = 0;
       }
 
+      ATinstanceEnable(function() { var nn;if(window.innerHeight / window.innerWidth < 1.25) {window.ATinstance.SendMessage("AT", "OrientationSquare");}if(window.innerWidth < window.innerHeight) {window.ATinstance.SendMessage("AT", "OrientationPortrait");nn = false;} else {window.ATinstance.SendMessage("AT", "OrientationLandscape");nn = true;}window.addEventListener("resize", (event) => {if(window.innerWidth < window.innerHeight) {if(nn) {window.ATinstance.SendMessage("AT", "OrientationPortrait");nn = false;}} else {if(!nn) {window.ATinstance.SendMessage("AT", "OrientationLandscape");nn = true;}}});});
 
       // Вызываем апдейт при входе на страницу и изменений размеров окна браузера
       function Update() {
