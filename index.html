@@ -341,9 +341,9 @@
       unityLoader.src = "Build/RSP.loader.js";
       unityLoader.onload = () => {
         createUnityInstance(canvas, {
-          dataUrl: "Build/RSP.data",
-          frameworkUrl: "Build/RSP.framework.js",
-          codeUrl: "Build/RSP.wasm",
+          dataUrl: "Build/RSP.data.gz",
+          frameworkUrl: "Build/RSP.framework.js.gz",
+          codeUrl: "Build/RSP.wasm.gz",
           streamingAssetsUrl: "StreamingAssets",
           companyName: "DefaultCompany",
           productName: "RSP",
